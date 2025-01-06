@@ -3,25 +3,44 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.IO;
+
 
 public class MainManager : MonoBehaviour
 {
+    //public static MainManager Instance;
+
     public Brick BrickPrefab;
     public int LineCount = 6;
     public Rigidbody Ball;
 
     public Text ScoreText;
+    public Text highScoreText;
     public GameObject GameOverText;
     
     private bool m_Started = false;
     private int m_Points;
     
+    
     private bool m_GameOver = false;
 
-    
+    public GameObject highScoreManager;
+    public HighScoreTracker highScoreTracker;
+    public int highScoreStatic;
+    public string highScoreName;
+    private string highScoreTextUpdate;
+
     // Start is called before the first frame update
     void Start()
     {
+
+        highScoreTracker = GameObject.Find("High Score Manager").GetComponent<HighScoreTracker>();
+        highScoreStatic = highScoreTracker.highScore;
+        highScoreName = highScoreTracker.highScoreplayerName;
+        highScoreTextUpdate = "High Score: " + highScoreStatic + " Name: " + highScoreName;
+        highScoreText.text = highScoreTextUpdate;
+        Debug.Log("m_Points is " + m_Points + " and highScoreStatic is " + highScoreStatic);
+
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -66,11 +85,23 @@ public class MainManager : MonoBehaviour
     {
         m_Points += point;
         ScoreText.text = $"Score : {m_Points}";
+
+
     }
 
     public void GameOver()
     {
+        Debug.Log("m_Points is " + m_Points + " and highScoreStatic is " + highScoreStatic);
         m_GameOver = true;
         GameOverText.SetActive(true);
+        if (m_Points > highScoreStatic)
+        {
+            highScoreStatic = m_Points;
+            highScoreName = highScoreTracker.playerName;
+            highScoreTracker.SaveHighScore(highScoreStatic, highScoreName);
+            highScoreText.text = "High Score: " + highScoreStatic + " Name: " + highScoreName;
+        }
+
+
     }
 }
